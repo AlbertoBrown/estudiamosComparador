@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comparador comercial 2.0TD</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <button class="icon-btn" id="resetBtn" title="Reiniciar simulacion" aria-label="Reiniciar simulacion">↻</button>
+      <div class="topbar-title">Histórico de simulaciones</div>
+      <button class="ghost-btn" id="saveBtn">Guardar simulación</button>
+    </header>
+
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Panel de factura">
+        <section class="panel">
+          <div class="panel-title">Factura <span>(opcional)</span></div>
+          <p class="hint">Sube una factura para dejar guardado el archivo y usa los datos detectados como base.</p>
+
+          <label class="dropzone" id="dropzone">
+            <input type="file" id="invoiceFile" accept=".pdf,.jpg,.jpeg,.png,.txt">
+            <span class="drop-main">Haga click o arrastre un archivo</span>
+            <span class="drop-sub">PDF, imagen o TXT</span>
+          </label>
+
+          <div class="file-pill hidden" id="filePill">
+            <span id="fileName">Factura.pdf</span>
+            <button class="danger-icon" id="clearFile" title="Quitar archivo" aria-label="Quitar archivo">⌫</button>
+          </div>
+          <img class="invoice-preview hidden" id="invoicePreview" alt="Vista previa de la factura">
+          <div class="upload-status hidden" id="uploadStatus"></div>
+        </section>
+
+        <section class="panel invoice-data">
+          <div class="panel-title">Datos transcritos</div>
+          <dl>
+            <div><dt>Comercializadora</dt><dd>Naturgy</dd></div>
+            <div><dt>Tarifa actual</dt><dd>Tarifa Por Uso Luz</dd></div>
+            <div><dt>Contrato</dt><dd>3009181794</dd></div>
+            <div><dt>CUPS</dt><dd>ES0287000000001304CK0F</dd></div>
+            <div><dt>Distribuidora</dt><dd>Fuentes y Compañía S.L.</dd></div>
+            <div><dt>Contrato acceso</dt><dd>100001304</dd></div>
+            <div><dt>Peaje</dt><dd>2.0TD</dd></div>
+            <div><dt>Lecturas</dt><dd>Punta 45 kWh · Llano 50 kWh · Valle 89 kWh</dd></div>
+            <div><dt>Total consumo</dt><dd>184 kWh</dd></div>
+            <div><dt>Potencia</dt><dd>P1 3,450 kW · P2 3,450 kW</dd></div>
+            <div><dt>Factura</dt><dd>48,67 € · 31 días</dd></div>
+          </dl>
+        </section>
+
+        <section class="panel controls">
+          <label>
+            Tarifa
+            <select id="accessTariff">
+              <option value="2.0TD">2.0TD</option>
+            </select>
+          </label>
+
+          <div class="segmented" role="group" aria-label="Tipo de cliente">
+            <button data-segment="customerType" data-value="particular" class="active">⌂ Particular</button>
+            <button data-segment="customerType" data-value="empresa">▣ Empresa</button>
+          </div>
+
+          <div class="segmented" role="group" aria-label="Servicios">
+            <button data-segment="serviceMode" data-value="con">Con servicio</button>
+            <button data-segment="serviceMode" data-value="sin" class="active">Sin servicio</button>
+            <button data-segment="serviceMode" data-value="ambos">Ambos</button>
+          </div>
+
+          <div class="segmented" role="group" aria-label="Modo de simulacion">
+            <button data-segment="simulationMode" data-value="annual">▦ Simulación anual</button>
+            <button data-segment="simulationMode" data-value="bill" class="active">▤ Simulación de factura</button>
+          </div>
+
+          <button class="sip-btn" id="sampleBtn">Obtener lectura del SIPS</button>
+
+          <div class="date-grid">
+            <label>
+              Inicio facturación
+              <input type="date" id="startDate" value="2025-12-01">
+            </label>
+            <label>
+              Fin facturación
+              <input type="date" id="endDate" value="2025-12-31">
+            </label>
+          </div>
+
+          <label>
+            Importe pagado <span class="muted">(factura actual)</span>
+            <div class="money-input">
+              <input type="number" id="paidAmount" value="48.67" min="0" step="0.01">
+              <span>€</span>
+            </div>
+          </label>
+
+          <div class="input-grid">
+            <label>
+              Consumo punta
+              <div class="unit-input">
+                <input type="number" id="kwhP1" value="45" min="0" step="1">
+                <span>kWh</span>
+              </div>
+            </label>
+            <label>
+              Consumo llano
+              <div class="unit-input">
+                <input type="number" id="kwhP2" value="50" min="0" step="1">
+                <span>kWh</span>
+              </div>
+            </label>
+            <label>
+              Consumo valle
+              <div class="unit-input">
+                <input type="number" id="kwhP3" value="89" min="0" step="1">
+                <span>kWh</span>
+              </div>
+            </label>
+            <label>
+              Potencia P1
+              <div class="unit-input">
+                <input type="number" id="kwP1" value="3.45" min="0" step="0.1">
+                <span>kW</span>
+              </div>
+            </label>
+            <label>
+              Potencia P2
+              <div class="unit-input">
+                <input type="number" id="kwP2" value="3.45" min="0" step="0.1">
+                <span>kW</span>
+              </div>
+            </label>
+          </div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <div class="chart-toggle">
+          <span>⌁</span>
+          <button id="chartBtn">Mostrar gráfica</button>
+        </div>
+
+        <div class="summary-grid">
+          <article>
+            <span>Factura actual</span>
+            <strong id="currentCost">158,72 €</strong>
+          </article>
+          <article>
+            <span>Mejor ahorro</span>
+            <strong id="bestSaving">0,00 €</strong>
+          </article>
+          <article>
+            <span>Mejor comisión agente</span>
+            <strong id="bestNet">0,00 €</strong>
+          </article>
+          <article>
+            <span>Contratos simulados</span>
+            <strong id="planCount">0</strong>
+          </article>
+        </div>
+
+        <div class="chart-panel hidden" id="chartPanel">
+          <div class="chart-header">
+            <span>Ahorro estimado por tarifa</span>
+            <span>Comisión agente</span>
+          </div>
+          <div id="bars"></div>
+        </div>
+
+        <div class="results-card">
+          <nav class="tabs" aria-label="Vista de resultados">
+            <button class="active" data-tab="cost">Coste factura</button>
+            <button data-tab="commercial">Filtro comercial</button>
+          </nav>
+
+          <div class="filters" id="commercialFilters">
+            <label class="internal-only">
+              Comisión Estudiamos tu factura
+              <div class="money-input compact">
+                <input type="number" id="agentCommission" value="15" min="0" step="1">
+                <span>€</span>
+              </div>
+            </label>
+            <label>
+              Ordenar por
+              <select id="sortMode">
+                <option value="saving">Ahorro cliente</option>
+                <option value="net">Comisión agente</option>
+                <option value="balanced">Equilibrio</option>
+              </select>
+            </label>
+            <label>
+              Comercializadora
+              <select id="companyFilter">
+                <option value="all">Todas</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Compañía</th>
+                  <th>Nombre</th>
+                  <th>Coste factura</th>
+                  <th>Ahorro</th>
+                  <th>Comisión</th>
+                  <th>Claves</th>
+                </tr>
+              </thead>
+              <tbody id="resultsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
