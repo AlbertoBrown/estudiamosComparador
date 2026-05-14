@@ -18,6 +18,11 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   color: var(--ink);
@@ -29,12 +34,17 @@ button,
 input,
 select {
   font: inherit;
+  min-width: 0;
+}
+
+img {
+  max-width: 100%;
 }
 
 .topbar {
   min-height: 50px;
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: minmax(36px, 48px) minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   padding: 0 12px;
@@ -48,6 +58,10 @@ select {
 .topbar-title {
   text-align: center;
   font-weight: 650;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .icon-btn,
@@ -74,13 +88,16 @@ select {
   padding: 0 12px;
   border-radius: 6px;
   font-weight: 650;
+  white-space: nowrap;
 }
 
 .app-shell {
+  width: min(100%, 1800px);
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  grid-template-columns: clamp(340px, 27vw, 460px) minmax(0, 1fr);
   gap: 14px;
-  padding: 14px 12px;
+  padding: clamp(10px, 1.2vw, 18px);
   min-height: calc(100vh - 50px);
 }
 
@@ -91,6 +108,16 @@ select {
 
 .sidebar {
   align-self: start;
+}
+
+@media (min-width: 1180px) {
+  .sidebar {
+    position: sticky;
+    top: 64px;
+    max-height: calc(100vh - 78px);
+    overflow: auto;
+    padding-right: 2px;
+  }
 }
 
 .panel {
@@ -216,6 +243,7 @@ select {
   margin: 0;
   font-size: 13px;
   font-weight: 650;
+  overflow-wrap: anywhere;
 }
 
 .controls {
@@ -283,7 +311,7 @@ input {
 .date-grid,
 .input-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -352,7 +380,7 @@ input {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 10px;
 }
@@ -373,7 +401,8 @@ input {
 }
 
 .summary-grid strong {
-  font-size: 23px;
+  font-size: clamp(18px, 1.55vw, 24px);
+  overflow-wrap: anywhere;
 }
 
 .chart-panel {
@@ -449,7 +478,7 @@ input {
 
 .filters {
   display: grid;
-  grid-template-columns: 180px 190px;
+  grid-template-columns: repeat(2, minmax(180px, 220px));
   gap: 12px;
   align-items: end;
   padding: 12px;
@@ -468,7 +497,7 @@ input {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 980px;
+  min-width: 920px;
 }
 
 th,
@@ -517,6 +546,7 @@ tbody tr:nth-child(even) {
 .plan-name {
   max-width: 380px;
   font-size: 14px;
+  overflow-wrap: anywhere;
 }
 
 .cost {
@@ -589,6 +619,96 @@ tbody tr:nth-child(even) {
 
   .filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .table-wrap {
+    overflow: visible;
+  }
+
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td {
+    display: block;
+  }
+
+  table {
+    min-width: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 10px;
+    padding: 10px;
+    background: #eef1f5;
+  }
+
+  tbody tr,
+  tbody tr:nth-child(odd),
+  tbody tr:nth-child(even) {
+    display: grid;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+  }
+
+  td {
+    display: grid;
+    grid-template-columns: minmax(110px, 34%) minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    padding: 0;
+    min-width: 0;
+  }
+
+  td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 750;
+  }
+
+  td.rank {
+    display: block;
+    color: var(--blue);
+    font-size: 16px;
+  }
+
+  td.rank::before {
+    content: "";
+  }
+
+  .company {
+    justify-content: flex-start;
+  }
+
+  .plan-name {
+    max-width: none;
+    font-size: 13px;
+  }
+
+  .cost,
+  .saving {
+    font-size: 18px;
+  }
+
+  .saving small {
+    font-size: 15px;
+  }
+
+  .chips {
+    max-width: none;
   }
 }
 
@@ -717,93 +837,6 @@ tbody tr:nth-child(even) {
     max-width: none;
   }
 
-  .table-wrap {
-    overflow: visible;
-  }
-
-  table,
-  thead,
-  tbody,
-  tr,
-  th,
-  td {
-    display: block;
-  }
-
-  table {
-    min-width: 0;
-  }
-
-  thead {
-    display: none;
-  }
-
-  tbody {
-    display: grid;
-    gap: 10px;
-    padding: 10px;
-    background: #eef1f5;
-  }
-
-  tbody tr,
-  tbody tr:nth-child(odd),
-  tbody tr:nth-child(even) {
-    display: grid;
-    gap: 8px;
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 7px;
-    padding: 12px;
-    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
-  }
-
-  td {
-    display: grid;
-    grid-template-columns: 118px minmax(0, 1fr);
-    gap: 10px;
-    align-items: center;
-    padding: 0;
-    min-width: 0;
-  }
-
-  td::before {
-    content: attr(data-label);
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 750;
-  }
-
-  td.rank {
-    display: block;
-    color: var(--blue);
-    font-size: 16px;
-  }
-
-  td.rank::before {
-    content: "";
-  }
-
-  .company {
-    justify-content: flex-start;
-  }
-
-  .plan-name {
-    max-width: none;
-    font-size: 13px;
-  }
-
-  .cost,
-  .saving {
-    font-size: 18px;
-  }
-
-  .saving small {
-    font-size: 15px;
-  }
-
-  .chips {
-    max-width: none;
-  }
 }
 
 @media (max-width: 420px) {
@@ -818,5 +851,35 @@ tbody tr:nth-child(even) {
 
   .summary-grid strong {
     font-size: 18px;
+  }
+
+  .panel {
+    padding: 10px;
+  }
+
+  .tabs button {
+    font-size: 14px;
+  }
+
+  .chip {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 340px) {
+  .topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .icon-btn {
+    display: none;
+  }
+
+  .topbar-title {
+    text-align: left;
+  }
+
+  .tabs {
+    display: grid;
   }
 }
